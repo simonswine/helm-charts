@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gem-test-a-benchtool
+  namespace: christian-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: benchtool
+      release: gem-test-a
+  template:
+    metadata:
+      annotations:
+        checksum/config: a26a5ea5c617358dd3a19fdcb718186c8b6b12149193522b2d159dba1231cbe0
+      creationTimestamp: null
+      labels:
+        app: benchtool
+        release: gem-test-a
+    spec:
+      containers:
+      - name: benchtool
+        command:
+        - /bin/sh
+        - -euxc
+        - |
+          cat > workload.yaml <<EOF
+          queries:
+            - expr_template: sum(<<.Name>>{<<.Matchers>>})
+              interval: 1m
+              time_range: 1h
+              num_queries: 500
+              series_type: gauge-random
+          replicas: 100
+          series:
+            - labels:
+                - name: label_01
+                  unique_values: 100
+                  value_prefix: label_value_01
+              name: metric_gauge_random_5
+              static_labels:
+                static: "true"
+              type: gauge-random
+          write_options:
+            batch_size: 10000
+            interval: 10s
+          EOF
+
+          exec benchtool \
+            -bench.workload-file-path=workload.yaml \
+            -bench.instance-name=team-e \
+            -bench.write.enabled=true \
+            -bench.write.basic-auth-username=team-e \
+            -bench.write.basic-auth-password=insecure \
+            -bench.write.endpoint=gem-test-a-enterprise-metrics-distributor:8080 \
+            -log.level=debug
+
+        image: simonswine/cortex-tools:multi_tenancy_dummy_generating-a316ba71
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            memory: 4Gi
+          requests:
+            cpu: "2"
+            memory: 2Gi
