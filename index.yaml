@@ -1,2 +1,14 @@
 apiVersion: v1
-entries: {}
+entries:
+  rustfs:
+  - apiVersion: v2
+    appVersion: 1.0.0-alpha.73
+    created: "2025-12-10T13:49:52.556937Z"
+    description: RustFS helm chart to deploy RustFS on kubernetes cluster.
+    digest: b2634f9896abec7b0603401f0a95098acc43e1ec4eba889e00c3257dc1a39802
+    name: rustfs
+    type: application
+    urls:
+    - rustfs-1.0.3-cs.1.tgz
+    version: 1.0.3-cs.1
+generated: "2025-12-10T13:49:52.55694Z"
